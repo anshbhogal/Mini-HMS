@@ -1,0 +1,24 @@
+service: hms-email-service
+
+provider:
+  name: aws
+  runtime: python3.12
+  region: us-east-1
+  environment:
+    EMAIL_SMTP_HOST: ${env:EMAIL_SMTP_HOST, 'console'}
+    EMAIL_SMTP_PORT: ${env:EMAIL_SMTP_PORT, '587'}
+    EMAIL_SMTP_USER: ${env:EMAIL_SMTP_USER, ''}
+    EMAIL_SMTP_PASSWORD: ${env:EMAIL_SMTP_PASSWORD, ''}
+    EMAIL_FROM: ${env:EMAIL_FROM, 'no-reply@hms.com'}
+
+plugins:
+  - serverless-offline
+
+functions:
+  sendEmail:
+    handler: handler.send_email
+    events:
+      - http:
+          path: send-email
+          method: post
+          cors: true

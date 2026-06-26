@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - Mini HMS{% endblock %}
+
+{% block extra_head %}
+<style>
+    .auth-container {
+        max-width: 450px;
+        margin: 2rem auto;
+    }
+    
+    .auth-title {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+    
+    .auth-subtitle {
+        text-align: center;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        font-family: var(--font-sans);
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+        background-color: var(--bg-primary);
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        background-color: white;
+    }
+    
+    .role-selector {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .role-option {
+        border: 2px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+    
+    .role-option:hover {
+        border-color: var(--text-muted);
+    }
+    
+    .role-input {
+        display: none;
+    }
+    
+    .role-input:checked + .role-option {
+        border-color: var(--primary);
+        color: var(--primary);
+        background-color: var(--primary-light);
+    }
+    
+    .auth-footer {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+    
+    .auth-footer a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="card">
+        <h2 class="auth-title">Create Account</h2>
+        <p class="auth-subtitle">Join us to manage appointments easily</p>
+        
+        <form method="POST" action="{% url 'signup' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input class="form-input" type="text" id="username" name="username" required placeholder="e.g. johndoe">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="full_name">Full Name</label>
+                <input class="form-input" type="text" id="full_name" name="full_name" placeholder="e.g. John Doe">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input class="form-input" type="email" id="email" name="email" required placeholder="e.g. john@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input class="form-input" type="password" id="password" name="password" required placeholder="••••••••">
+            </div>
+            
+            <label class="form-label">I am registering as a:</label>
+            <div class="role-selector">
+                <label>
+                    <input type="radio" class="role-input" name="role" value="patient" checked>
+                    <div class="role-option">Patient</div>
+                </label>
+                
+                <label>
+                    <input type="radio" class="role-input" name="role" value="doctor">
+                    <div class="role-option">Doctor</div>
+                </label>
+            </div>
+            
+            <button class="btn btn-primary" type="submit" style="width: 100%; padding: 0.8rem;">Register</button>
+        </form>
+        
+        <div class="auth-footer">
+            Already have an account? <a href="{% url 'login' %}">Login here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

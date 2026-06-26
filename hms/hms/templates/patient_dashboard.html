@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Dashboard - Mini HMS{% endblock %}
+
+{% block extra_head %}
+<style>
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 2rem;
+    }
+    
+    .section-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .calendar-card {
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--primary);
+    }
+    
+    .calendar-status {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .status-connected {
+        background-color: var(--success-light);
+        color: #065f46;
+    }
+    
+    .status-disconnected {
+        background-color: #f1f5f9;
+        color: #64748b;
+    }
+    
+    .doctor-select-card {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .doctor-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .doctor-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--text-secondary);
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    
+    .doctor-item:hover, .doctor-item.active {
+        border-color: var(--primary);
+        color: var(--primary);
+        background-color: var(--primary-light);
+    }
+    
+    .slots-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    
+    .slot-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1.25rem;
+    }
+    
+    .slot-card {
+        padding: 1.25rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--success);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 150px;
+    }
+    
+    .slot-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .slot-time {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    
+    .slot-date {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+    
+    .bookings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .booking-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        border-left: 4px solid var(--primary);
+    }
+    
+    .booking-info h4 {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+    
+    .booking-info p {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1.5rem;
+        background-color: var(--bg-secondary);
+        border: 2px dashed var(--border);
+        border-radius: var(--radius-lg);
+        color: var(--text-secondary);
+    }
+    
+    @media (max-width: 900px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Left Column: Controls -->
+    <div class="controls-panel">
+        <!-- Google Calendar Card -->
+        <div class="card calendar-card">
+            <h3 class="section-title">📅 Google Calendar</h3>
+            <div class="calendar-status">
+                {% if has_calendar %}
+                    <span class="status-badge status-connected">Connected</span>
+                {% else %}
+                    <span class="status-badge status-disconnected">Not Connected</span>
+                {% endif %}
+            </div>
+            
+            {% if has_calendar %}
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    We will automatically schedule your booked appointments directly to Google Calendar.
+                </p>
+                <a href="{% url 'google_connect' %}" class="btn btn-outline" style="width: 100%; font-size: 0.85rem;">Reconnect Calendar</a>
+            {% else %}
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                    Sync your bookings dynamically with your Google Calendar by linking your account.
+                </p>
+                <a href="{% url 'google_connect' %}" class="btn btn-primary" style="width: 100%; font-size: 0.85rem;">Connect Calendar</a>
+            {% endif %}
+        </div>
+        
+        <!-- Browse Doctors -->
+        <div class="card doctor-select-card">
+            <h3 class="section-title">👨‍⚕️ Choose a Doctor</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">Select a doctor to view their current open slots:</p>
+            <div class="doctor-list">
+                {% for doc in doctors %}
+                    <a href="?doctor_id={{ doc.id }}" class="doctor-item {% if selected_doctor.id == doc.id %}active{% endif %}">
+                        <span>{{ doc.get_display_name }}</span>
+                        <span>→</span>
+                    </a>
+                {% empty %}
+                    <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center;">No doctors registered yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Slots and History -->
+    <div class="slots-panel">
+        <!-- Doctor Availability Slots -->
+        <div class="card">
+            {% if selected_doctor %}
+                <h3 class="section-title">🕒 Available Slots for {{ selected_doctor.get_display_name }}</h3>
+                
+                <div class="slot-list">
+                    {% for slot in availabilities %}
+                        <div class="slot-card">
+                            <div>
+                                <div class="slot-time">
+                                    {{ slot.start_time|date:"H:i" }} - {{ slot.end_time|date:"H:i" }}
+                                </div>
+                                <div class="slot-date">
+                                    📅 {{ slot.start_time|date:"l, M j, Y" }}
+                                </div>
+                            </div>
+                            
+                            <form method="POST" action="{% url 'book_slot' slot.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-primary" type="submit" style="width: 100%; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                                    Book Slot
+                                </button>
+                            </form>
+                        </div>
+                    {% empty %}
+                        <div class="empty-state" style="width: 100%; grid-column: 1 / -1;">
+                            <span style="font-size: 2.5rem;">📅</span>
+                            <h4 style="margin: 0.75rem 0 0.25rem 0; font-family: var(--font-display);">No Open Slots</h4>
+                            <p style="font-size: 0.85rem;">This doctor has no available scheduling blocks at the moment.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <span style="font-size: 3rem;">👈</span>
+                    <h4 style="margin: 1rem 0 0.5rem 0; font-family: var(--font-display);">Select a Doctor</h4>
+                    <p style="font-size: 0.9rem;">Choose a doctor from the panel on the left to see their open appointment slots.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- My Booked Appointments -->
+        <div class="card">
+            <h3 class="section-title">🗒️ Your Scheduled Bookings</h3>
+            
+            <div class="bookings-list">
+                {% for booking in my_bookings %}
+                    <div class="booking-card">
+                        <div class="booking-info">
+                            <h4>{{ booking.doctor.get_display_name }}</h4>
+                            <p>📅 {{ booking.availability_slot.start_time|date:"l, F j, Y" }}</p>
+                            <p>⏰ {{ booking.availability_slot.start_time|date:"H:i" }} - {{ booking.availability_slot.end_time|date:"H:i" }} UTC</p>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                            <span class="status-badge status-connected">Confirmed</span>
+                            {% if booking.patient_google_event_id %}
+                                <span style="font-size: 0.75rem; color: var(--success); font-weight: 500;">✓ Synced to Google Calendar</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="empty-state">
+                        <span style="font-size: 2.5rem;">🏥</span>
+                        <h4 style="margin: 0.75rem 0 0.25rem 0; font-family: var(--font-display);">No Bookings Yet</h4>
+                        <p style="font-size: 0.85rem;">You haven't scheduled any appointments yet. Select a doctor to begin.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
