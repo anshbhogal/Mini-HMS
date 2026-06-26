@@ -543,3 +543,15 @@ Checked git status.
 **Result:** Working tree clean.
 
 ---
+
+### Prompt 7 (User Request)
+Add "The Design Decision" details to the README.md report.
+
+---
+
+### Response 85 (Assistant)
+Updated the `README.md` file to detail the booking race-condition choice: Pessimistic Row-Level Locking (`select_for_update`) vs. Optimistic Concurrency Control (OCC). Documented alternatives and defended the choice. Stage, commit, and push updates to remote GitHub repository.
+*Called tool: run_command(CommandLine='git add README.md; git commit -m ...; git push origin main')*
+**Result:** Successfully pushed to remote repository.
+
+---
