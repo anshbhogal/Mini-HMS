@@ -58,13 +58,42 @@ Google Calendar integration is structured as an optional user connection. The co
 
 ## The Design Decision
 
-The hard call was whether email should be sent directly inside the Django app or through a separate serverless function.
+### The Problem: Handling Concurrent Booking Race Conditions
+In a hospital scheduling system, doctor time slots are a "hot resource." If two patients concurrently attempt to book the exact same open availability slot (e.g., June 30th at 10:00 AM), we must guarantee that exactly one booking succeeds, while the other is rejected. Allowing a double booking is a critical failure. We had to choose how to handle this race condition.
 
-Option one was direct Django SMTP. It would be simpler to code and easier to debug because everything would live in one process. The downside is that the web request layer would know too much about email transport, and swapping from console logs to SMTP or a cloud provider would affect the Django app.
+### The Alternatives Considered
 
-Option two was a separate serverless email service. This adds a second process during local development, but it matches the required architecture and keeps notification delivery isolated behind an HTTP boundary.
+#### Option 1: Optimistic Concurrency Control (OCC)
+In this approach, we would add a version number or tracking timestamp field to the `Availability` slot model. When attempting to book, the application reads the slot, checks that it is free, and attempts to save it while executing an update query:
+```sql
+UPDATE hms_availability SET is_booked = true, version = version + 1 
+WHERE id = :slot_id AND version = :read_version AND is_booked = false;
+```
+If the query updates 0 rows, it means another thread updated the slot in the interim, and we reject or retry the booking.
+*   **Pros**: Highly performant under low conflict levels because it does not lock the database row, avoiding connection blocks.
+*   **Cons**: Shifts retry complexity to the application layer. Under high conflict (e.g., many patients trying to book a popular slot when it opens), it leads to transaction collisions, high rejection rates, and CPU cycles spent on retries.
 
-I chose the separate serverless email service. For this project, that is the better tradeoff because the Django app only needs to emit notification events, while the email service can decide whether to log, use SMTP, or later move to a provider such as SES. The boundary is small, testable, and realistic for production evolution.
+#### Option 2: Pessimistic Concurrency Control (PCC) via Database Row-Level Locking
+In this approach, when a booking request is received, Django opens an atomic database transaction block and queries the slot using `select_for_update()`:
+```python
+with transaction.atomic():
+    slot = Availability.objects.select_for_update().get(id=slot_id)
+    if slot.is_booked:
+        raise ValidationError("Slot already booked.")
+    slot.is_booked = True
+    slot.save()
+    Booking.objects.create(...)
+```
+This forces the database engine to acquire an exclusive write lock on that specific slot row immediately. Any other concurrent query attempting to select or update that row is forced to block (wait) until the locking transaction either commits or rolls back.
+
+### The Choice & Defense: Pessimistic Row-Level Locking
+We chose **Pessimistic Row-Level Locking (Option 2)**. 
+
+In doctor scheduling, slot conflicts are highly concentrated: multiple patients typically compete for the same popular appointment times simultaneously. 
+*   Pessimistic locking acts as a traffic controller at the database engine level. By blocking the second transaction at the query stage, we eliminate the risk of dirty reads or writing phantom entries.
+*   Unlike OCC, which forces the backend server to process duplicate requests only to reject them at the commit stage (and then execute complex retry loops), pessimistic locking queues concurrent requests naturally. The moment the first transaction commits, the queued transaction wakes up, immediately reads the updated `is_booked = True` state, and fails instantly without executing further logic or database writes.
+*   This design ensures maximum transaction safety and data integrity, leveraging PostgreSQL's row-level locking capabilities.
+
 
 ## Limitations
 
