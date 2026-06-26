@@ -223,6 +223,8 @@ Initialized Django project:
 Created core Django app `hms`:
 *Called tool: run_command(CommandLine='..\\.venv\\Scripts\\python manage.py startapp hms')*
 
+---('mini_hms' settings/urls, 'hms' app) and 'email-service' serverless config. Pushed to remote repository.
+
 ---
 
 ### Response 27 (Assistant)
@@ -551,7 +553,17 @@ Add "The Design Decision" details to the README.md report.
 
 ### Response 85 (Assistant)
 Updated the `README.md` file to detail the booking race-condition choice: Pessimistic Row-Level Locking (`select_for_update`) vs. Optimistic Concurrency Control (OCC). Documented alternatives and defended the choice. Stage, commit, and push updates to remote GitHub repository.
-*Called tool: run_command(CommandLine='git add README.md; git commit -m ...; git push origin main')*
-**Result:** Successfully pushed to remote repository.
+*Called tool: run_command(CommandLine='git add README.md; ...')*
+
+---
+
+### Prompt 8 (User Request)
+Create a new file on the Desktop containing the video demonstration script.
+
+---
+
+### Response 86 (Assistant)
+Identified Desktop path and created the detailed video script file at `C:\Users\anshb\Desktop\video_demo_script.md` with structured timelines, instructions, and talking points.
+*Called tool: write_to_file(TargetFile='C:\\Users\\anshb\\Desktop\\video_demo_script.md')*
 
 ---
