@@ -154,3 +154,303 @@ Serverless ϟ Framework 4.38.1
 ```
 
 ---
+
+### Response 15 (Assistant)
+[Created implementation plan artifact `implementation_plan.md` outlining folders, User Roles, Booking race condition transactions, Google Calendar API OAuth, and Serverless Offline triggers.]
+
+---
+
+### Prompt 3 (User Request)
+[Approved the implementation plan]
+
+---
+
+### Response 16 (Assistant)
+[Created task checklist `task.md`]
+
+---
+
+### Response 17 (Assistant)
+Created virtual environment:
+*Called tool: run_command(CommandLine='python -m venv .venv')*
+
+---
+
+### Response 18 (Assistant)
+Created `backend/requirements.txt` with django, psycopg2-binary, requests, django-environ, and google API dependencies.
+
+---
+
+### Response 19 (Assistant)
+Installed backend dependencies:
+*Called tool: run_command(CommandLine='.\\.venv\\Scripts\\pip install -r backend/requirements.txt')*
+
+---
+
+### Response 20 (Assistant)
+Created `email_service/package.json` for Serverless offline dependencies.
+
+---
+
+### Response 21 (Assistant)
+Created `email_service/serverless.yml` configuring provider, handler triggers, and SMTP env variables.
+
+---
+
+### Response 22 (Assistant)
+Created `email_service/handler.py` supporting console/file log fallback and actual SMTP execution.
+
+---
+
+### Response 23 (Assistant)
+Checked pip installation status.
+
+---
+
+### Response 24 (Assistant)
+Ran `npm install` inside the email service folder:
+*Called tool: run_command(CommandLine='npm install')*
+
+---
+
+### Response 25 (Assistant)
+Initialized Django project:
+*Called tool: run_command(CommandLine='..\\.venv\\Scripts\\django-admin startproject mini_hms .')*
+
+---
+
+### Response 26 (Assistant)
+Created core Django app `hms`:
+*Called tool: run_command(CommandLine='..\\.venv\\Scripts\\python manage.py startapp hms')*
+
+---
+
+### Response 27 (Assistant)
+Modified `settings.py` adding `hms` to applications list, setting custom `User` auth model, configuring Google credentials variables, and adding a dynamic database engine selection between PostgreSQL and SQLite fallback.
+
+---
+
+### Response 28 (Assistant)
+Wrote database models in `models.py` defining custom User role fields, Availability schedules, Booking with OneToOne slots to avoid double booking at DB constraints level, and GoogleCredentials storing tokens.
+
+---
+
+### Response 29 (Assistant)
+Wrote email client triggers in `emails.py` making post save calls asynchronously to Serverless offline HTTP endpoints in Python background threads.
+
+---
+
+### Response 30 (Assistant)
+Wrote Google Calendar event synchronizer helper functions in `calendar_sync.py` executing Google API Client commands or falling back to descriptive print console mocks.
+
+---
+
+### Response 31 (Assistant)
+Wrote dashboards, authorization forms, and booking views inside `views.py`. Secured booking view uses `select_for_update()` inside database transaction blocks.
+
+---
+
+### Response 32 (Assistant)
+Wrote URL routes mapping in `hms/urls.py`.
+
+---
+
+### Response 33 (Assistant)
+Integrated URL mapping in `mini_hms/urls.py`.
+
+---
+
+### Response 34 (Assistant)
+Wrote layout template `base.html` using premium typography, Inter, clean border cards, and custom CSS variables.
+
+---
+
+### Response 35 (Assistant)
+Wrote home page template `index.html`.
+
+---
+
+### Response 36 (Assistant)
+Wrote register page template `signup.html` with visual role selectors.
+
+---
+
+### Response 37 (Assistant)
+Wrote login page template `login.html`.
+
+---
+
+### Response 38 (Assistant)
+Wrote doctor dashboard template `doctor_dashboard.html` implementing slots configurations.
+
+---
+
+### Response 39 (Assistant)
+Wrote patient dashboard template `patient_dashboard.html` implementing doctor list filter and slot booking submit actions.
+
+---
+
+### Response 40 (Assistant)
+Wrote `.env` configurations.
+
+---
+
+### Response 41 (Assistant)
+Ran migrations creation:
+*Called tool: run_command(CommandLine='.\\.venv\\Scripts\\python backend/manage.py makemigrations hms')*
+
+---
+
+### Response 42 (Assistant)
+Applied migrations:
+*Called tool: run_command(CommandLine='.\\.venv\\Scripts\\python backend/manage.py migrate')*
+
+---
+
+### Response 43 (Assistant)
+Created test cases in `tests.py`.
+
+---
+
+### Response 44 (Assistant)
+Ran tests:
+*Called tool: run_command(CommandLine='.\\.venv\\Scripts\\python backend/manage.py test hms')*
+**Result:** Failed because concurrent authentication writing sessions inside separate threads conflicted on SQLite database table locks.
+
+---
+
+### Response 45 (Assistant)
+Updated tests to establish logins on Client objects before launching parallel threads.
+
+---
+
+### Response 46 (Assistant)
+Ran tests:
+*Called tool: run_command(CommandLine='.\\.venv\\Scripts\\python backend/manage.py test hms')*
+**Result:** Failed because the standard `TestCase` rolls back database data per transaction, making setup values invisible to alternate threads.
+
+---
+
+### Response 47 (Assistant)
+Upgraded test class from `TestCase` to `TransactionTestCase` which allows thread sharing.
+
+---
+
+### Response 48 (Assistant)
+Added assertions details print for debugging.
+
+---
+
+### Response 49 (Assistant)
+Ran tests:
+*Called tool: run_command(CommandLine='.\\.venv\\Scripts\\python backend/manage.py test hms')*
+**Result:** Successful! Passed all 4 tests including the concurrent booking test.
+
+---
+
+### Response 50 (Assistant)
+Updated `task.md` checklist.
+
+---
+
+### Response 51 (Assistant)
+Attempted launching Serverless Offline:
+*Called tool: run_command(CommandLine='npx serverless offline --httpPort 3000')*
+**Result:** Serverless v4 threw an error requiring local authentication login (`serverless login`) and API keys.
+
+---
+
+### Response 52 (Assistant)
+Scheduled verification waits.
+
+---
+
+### Response 53 (Assistant)
+Downgraded Serverless Framework to v3 in `package.json` to allow full local offline testing.
+
+---
+
+### Response 54 (Assistant)
+Re-installed Node packages:
+*Called tool: run_command(CommandLine='npm install')*
+
+---
+
+### Response 55 (Assistant)
+Monitored npm install tasks.
+
+---
+
+### Response 56-61 (Assistant)
+Scheduled timers and checked task status until local npm install finished.
+
+---
+
+### Response 62 (Assistant)
+Launched Serverless Offline again:
+*Called tool: run_command(CommandLine='npx serverless offline --httpPort 3000')*
+**Result:** Threw Windows command parsing error `python: can't open file 'D:\Mini'` because of the space in workspace path `D:\Mini HMS`.
+
+---
+
+### Response 63 (Assistant)
+Stopped service task.
+
+---
+
+### Response 64 (Assistant)
+Created directory junction link `D:\mini_hms` to bypass paths with spaces:
+*Called tool: run_command(CommandLine='New-Item -ItemType Junction -Path "D:\\mini_hms" -Value "D:\\Mini HMS"')*
+
+---
+
+### Response 65 (Assistant)
+Killed old serverless task:
+*Called tool: manage_task(Action='kill', TaskId='...task-179')*
+
+---
+
+### Response 66 (Assistant)
+Re-launched Serverless Offline using the junction path directory:
+*Called tool: run_command(CommandLine='npx serverless offline --httpPort 3000', Cwd='D:\\mini_hms\\email_service')*
+**Result:** Server successfully ready and listening on port 3000.
+
+---
+
+### Response 67 (Assistant)
+Checked service server state status.
+
+---
+
+### Response 68 (Assistant)
+Launched Django development server:
+*Called tool: run_command(CommandLine='.\\.venv\\Scripts\\python backend/manage.py runserver 8000')*
+**Result:** Started.
+
+---
+
+### Response 69 (Assistant)
+Checked Django task logs.
+
+---
+
+### Response 70 (Assistant)
+Started browser subagent simulation to perform doctor registration, availability schedule, patient registration, calendar connect, and appointment slot booking.
+**Result:** Fully verified success.
+
+---
+
+### Prompt 4 (User Request)
+Verify folder restructuring and push to GitHub repository `https://github.com/anshbhogal/Mini-HMS`.
+
+---
+
+### Response 71 (Assistant)
+Listed root directories. Structure already matched:
+- `hms` (Django codebase)
+- `email-service` (Serverless service)
+- `requirements.txt` (Root requirements)
+- `ai-tool-usage-log` (Logs)
+- `README.md` (Written report)
+
+---
