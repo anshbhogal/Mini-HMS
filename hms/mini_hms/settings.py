@@ -48,6 +48,10 @@ SECRET_KEY = env('SECRET_KEY', default="django-insecure-bh0lhbndg9vx%6ywr2c#h7cq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
+if DEBUG:
+    # Allow insecure (HTTP) connection for local OAuth2 testing
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+
 ALLOWED_HOSTS = ['*']
 
 

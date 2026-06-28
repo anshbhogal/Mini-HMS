@@ -302,6 +302,7 @@ def google_connect(request):
     )
     
     request.session['google_oauth_state'] = state
+    request.session['google_oauth_code_verifier'] = flow.code_verifier
     return redirect(authorization_url)
 
 
@@ -318,6 +319,7 @@ def google_oauth_callback(request):
         return redirect('doctor_dashboard' if request.user.role == 'doctor' else 'patient_dashboard')
         
     state = request.session.get('google_oauth_state')
+    code_verifier = request.session.get('google_oauth_code_verifier')
     
     flow = Flow.from_client_config(
         {
@@ -330,8 +332,10 @@ def google_oauth_callback(request):
         },
         scopes=['https://www.googleapis.com/auth/calendar.events'],
         state=state,
-        redirect_uri=settings.GOOGLE_REDIRECT_URI
+        redirect_uri=settings.GOOGLE_REDIRECT_URI,
+        code_verifier=code_verifier
     )
+    flow.code_verifier = code_verifier
     
     flow.fetch_token(authorization_response=request.build_absolute_uri())
     credentials = flow.credentials
